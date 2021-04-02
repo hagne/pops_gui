@@ -1,2 +1,2 @@
 # pops_gui
-gui for POPS instrument
+gui for POPS instrument ... under construction
