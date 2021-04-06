@@ -18,8 +18,13 @@ class UdpData(object):
     def size_distribution(self):
         cols = [b for b in self.raw.columns if 'bin_' in b]
         sd = self.raw.loc[:,[b for b in self.raw.columns if 'bin_' in b]].astype(int)
+        
         if self.test:
             sd = sd + (np.random.random(sd.shape) * 10)
+            
+        bin_edges = np.linspace(float(self.raw.logmin), float(self.raw.logmax), sd.shape[1]+1)
+        bin_centers = (bin_edges[1:] + bin_edges[:-1])/2
+        sd.columns = bin_centers
         return sd 
     
     @property
@@ -42,6 +47,11 @@ class UdpData(object):
         df.columns = ['baseline', 'std']
         return df
     
+    @property
+    def flow_rate(self):
+        df = self.raw.loc[:,['POPS_Flow',]].astype(float)
+        df.columns = ['flow_rate',]
+        return df
         
     def plot_siz_distribution(self, ax = None):
         if isinstance(ax, type(None)):
@@ -50,7 +60,7 @@ class UdpData(object):
             a.set_ylabel('Particle numbers')
         else:
             a = ax
-        a.plot(self.size_distribution.values[0])
+        a.plot(self.size_distribution.columns, self.size_distribution.values[0])
         return a
     
     def plot_particle_concentration(self, ax = None):

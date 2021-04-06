@@ -5,12 +5,18 @@ Created on Mon Apr  5 09:58:54 2021
 
 @author: hagen
 
+Todo:
+    - Apply the initiate_plot function to all the others (excet the sizedistribution)
+    - add an intensity plot for the changing sizedistribution
+    - add an alltime average for size distribution into the plot
+    - allow to change to log scale for all plots
+    - limits, clear_button, log-lin toggle
+
 Notes:
     potentially usefull links:
         https://stackoverflow.com/questions/22831879/how-to-create-real-time-graph-in-kivy
         https://stackoverflow.com/questions/44905416/how-to-get-started-use-matplotlib-in-kivy
-        https://stackoverflow.com/questions/53630158/add-points-to-the-existing-matplotlib-scatter-plot
-        
+        https://stackoverflow.com/questions/53630158/add-points-to-the-existing-matplotlib-scatter-plot        
 
 """
 
@@ -87,6 +93,12 @@ class View_Kivy(App):
         ta_accordion.add_widget(ta_accordion_laser)
         ta_accordion_laser.title = 'Laser'
         self.initiate_plots_laser(ta_accordion_laser)
+        
+        #### Tab analytics flow
+        accorditem = AccordionItem()
+        ta_accordion.add_widget(accorditem)
+        accorditem.title = 'Flow rate'
+        self.initiate_plot(accorditem, 'flow_rate', ['flow_rate',], ['flow rate (cc/s)', ])
 
 ####    Tab auxiliary
         
@@ -111,6 +123,7 @@ class View_Kivy(App):
         self.update_laser()
         self.update_ptu()
         self.update_plot('baseline')
+        self.update_plot('flow_rate')
         
         
     def initiate_plot(self, container, dataset, column, ylabel):       
@@ -160,7 +173,7 @@ class View_Kivy(App):
             at = None
         
         container.add_widget(FigureCanvasKivyAgg(f))
-        self.plots['baseline'] = FigDic(fig = f, ax = a, at = at, collector = collector, column = column, dataset_name = dataset)
+        self.plots[dataset] = FigDic(fig = f, ax = a, at = at, collector = collector, column = column, dataset_name = dataset)
         return 
     
     def update_plot(self, plot_name):
@@ -173,7 +186,7 @@ class View_Kivy(App):
             cpt = collector.iloc[[-1]].copy()
             # print(cpt)
             scale = 0.5 * cpt.iloc[0]
-            cpt.iloc[0] += scale * np.random.random(2) - (scale/2)
+            cpt.iloc[0] += scale * np.random.random(cpt.iloc[0].shape[0]) - (scale/2)
             cpt.index += pd.to_timedelta(1, 'D')
             # collector = 
             # collector.append(cpt, inplace=True)
@@ -181,8 +194,8 @@ class View_Kivy(App):
             collector.loc[cpt.index.values[0]] = cpt.values[0]
             # print(collector)
         else:
-            collector = collector.append(getattr(self.active_data, dataset_name) )#self.active_data.pressure_temperatur_unit)
-
+            cpt = getattr(self.active_data, dataset_name) #)#self.active_data.pressure_temperatur_unit)
+            collector.loc[cpt.index.values[0]] = cpt.values[0]
         # f,a = self.plots['ptu'].fa 
         g = a.get_lines()[-1]
         g.remove()
@@ -301,7 +314,7 @@ class View_Kivy(App):
         a.set_title('particle size distribution')
         a.set_ylabel('Particle numbers')
   
-        g, = a.plot(self.active_data.size_distribution.values[0])
+        g, = a.plot(self.active_data.size_distribution.columns, self.active_data.size_distribution.values[0])
         
         self.plots['sizedistribution'] = FigDic(fig = f, ax = a, lines = [g,])
         # self.chart_sd = jp.Matplotlib(figure = self.f_sd, a=self.wp)
