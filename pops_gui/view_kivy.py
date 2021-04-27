@@ -20,7 +20,8 @@ Notes:
 
 """
 
-from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+# from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+from .garden_matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem

@@ -13,7 +13,8 @@ import pops_gui.com
 
 class Controller(object):
     def __init__(self, test = False):
-        self.communication = pops_gui.com.Listen2UDP(controller = self, test = test)
+        # self.communication = pops_gui.com.Listen2UDP(controller = self, test = test)
+        self.communication = pops_gui.com.Listen2Serial(controller = self, test = test)
         self.view = pops_gui.view_kivy.View_Kivy(controller = self, test = test)
         self.view.run()
         # self.view = pops_gui.view_justpy.JustPy(controller = self)
@@ -22,4 +23,4 @@ class Controller(object):
         
         
 if __name__ == "__main__":
-    view = Controller(test = True)
+    view = Controller(test = False)
